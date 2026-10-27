@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>브릭브레이커 Pro | 벽돌깨기 게임</title>
+  <meta name="description" content="구글 벽돌깨기를 기반으로 한 개선된 브릭브레이커 게임. 아이템 설명, 공 색깔별 효과, 블록 내구도 표시, 라운드별 공 갯수 증가 시스템 적용." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- ─── INTRO TUTORIAL POPUP ─── -->
+  <div id="tutorial-overlay" class="overlay active">
+    <div class="tutorial-modal">
+      <div class="modal-header">
+        <div class="modal-logo">🧱</div>
+        <h1>브릭브레이커 Pro</h1>
+        <p class="modal-subtitle">게임을 시작하기 전에 규칙을 확인해주세요!</p>
+      </div>
+
+      <div class="tab-bar">
+        <button class="tab-btn active" data-tab="balls" id="tab-balls">🎱 공의 종류</button>
+        <button class="tab-btn" data-tab="items" id="tab-items">✨ 아이템</button>
+        <button class="tab-btn" data-tab="blocks" id="tab-blocks">🧱 블록</button>
+        <button class="tab-btn" data-tab="rules" id="tab-rules">📋 규칙</button>
+      </div>
+
+      <!-- TAB: BALLS -->
+      <div class="tab-content active" id="tab-content-balls">
+        <h3 class="section-title">공의 종류와 효과</h3>
+        <p class="section-desc">공의 색깔에 따라 게임 중 특별한 효과가 발동합니다. 어떤 공이 유리한지 파악하세요!</p>
+        <div class="ball-grid">
+          <div class="ball-card advantage">
+            <div class="ball-preview" style="background: radial-gradient(circle at 35% 35%, #fff5c0, #ffd700, #e69500); box-shadow: 0 0 18px #ffd70099;"></div>
+            <div class="ball-info">
+              <span class="ball-name">⭐ 황금공</span>
+              <span class="ball-tag good">매우 유리</span>
+              <p>블록에 닿을 때마다 <strong>2배 데미지</strong>를 줍니다. 내구도가 높은 블록도 빠르게 처리할 수 있습니다.</p>
+            </div>
+          </div>
+          <div class="ball-card advantage">
+            <div class="ball-preview" style="background: radial-gradient(circle at 35% 35%, #ffe0f0, #ff4dac, #c00070); box-shadow: 0 0 18px #ff4dac99;"></div>
+            <div class="ball-info">
+              <span class="ball-name">💗 분홍공</span>
+              <span class="ball-tag good">유리</span>
+              <p>블록을 파괴 시 <strong>추가 점수 +50%</strong>를 획득합니다. 점수를 빠르게 올리고 싶다면 분홍공을 노리세요!</p>
+            </div>
+          </div>
+          <div class="ball-card neutral">
+            <div class="ball-preview" style="background: radial-gradient(circle at 35% 35%, #e0f0ff, #4da8ff, #0055cc); box-shadow: 0 0 18px #4da8ff99;"></div>
+            <div class="ball-info">
+              <span class="ball-name">🔵 파란공</span>
+              <span class="ball-tag neutral">기본</span>
+              <p>기본 공입니다. 특별한 효과는 없지만 <strong>이동 속도가 안정적</strong>이어서 조준하기 쉽습니다.</p>
+            </div>
+          </div>
+          <div class="ball-card neutral">
+            <div class="ball-preview" style="background: radial-gradient(circle at 35% 35%, #e0ffe0, #44dd44, #007700); box-shadow: 0 0 18px #44dd4499;"></div>
+            <div class="ball-info">
+              <span class="ball-name">🟢 초록공</span>
+              <span class="ball-tag neutral">약간 유리</span>
+              <p>블록 파괴 시 <strong>10% 확률로 아이템 드랍</strong> 확률이 증가합니다. 아이템 수집에 유리합니다.</p>
+            </div>
+          </div>
+          <div class="ball-card disadvantage">
+            <div class="ball-preview" style="background: radial-gradient(circle at 35% 35%, #ffe8d0, #ff6a00, #8b2000); box-shadow: 0 0 18px #ff6a0099;"></div>
+            <div class="ball-info">
+              <span class="ball-name">🔥 주황공</span>
+              <span class="ball-tag warn">주의 필요</span>
+              <p><strong>이동 속도가 2배 이상으로 매우 빠릅니다.</strong> 블록을 빠르게 처리할 수 있지만 패들로 받아치기 매우 어려우니 주의하세요.</p>
+            </div>
+          </div>
+          <div class="ball-card disadvantage">
+            <div class="ball-preview" style="background: radial-gradient(circle at 35% 35%, #f0d0ff, #b300ff, #5a0080); box-shadow: 0 0 18px #b300ff99;"></div>
+            <div class="ball-info">
+              <span class="ball-name">💜 보라공</span>
+              <span class="ball-tag bad">불리</span>
+              <p>블록 파괴 시 획득 점수가 <strong>-25% 감소</strong>합니다. 하지만 패들 폭이 살짝 넓어지는 보너스가 있습니다.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: ITEMS -->
+      <div class="tab-content" id="tab-content-items">
+        <h3 class="section-title">드랍 아이템 설명</h3>
+        <p class="section-desc">블록을 파괴하면 아이템이 떨어집니다. 패들로 받으면 효과가 즉시 발동됩니다!</p>
+        <div class="item-list">
+          <div class="item-card">
+            <div class="item-icon" style="background: linear-gradient(135deg, #ff44ff, #aa00aa);">✂️</div>
+            <div class="item-desc">
+              <strong>공 분열</strong>
+              <span class="item-duration">즉시</span>
+              <p>현재 화면에 있는 <strong>모든 공이 2배로 복제</strong>됩니다! 공이 많을수록 강력한 효과를 발휘합니다.</p>
+            </div>
+          </div>
+          <div class="item-card">
+            <div class="item-icon" style="background: linear-gradient(135deg, #ffd700, #ff8800);">🔱</div>
+            <div class="item-desc">
+              <strong>멀티볼</strong>
+              <span class="item-duration">10초</span>
+              <p>현재 공이 3개로 분열됩니다. 화면 안의 공이 모두 사라지면 1개로 줄어듭니다.</p>
+            </div>
+          </div>
+          <div class="item-card">
+            <div class="item-icon" style="background: linear-gradient(135deg, #00d4ff, #0066ff);">➡️</div>
+            <div class="item-desc">
+              <strong>패들 확장</strong>
+              <span class="item-duration">12초</span>
+              <p>패들 너비가 1.6배로 늘어납니다. 공을 더 쉽게 받아칠 수 있습니다.</p>
+            </div>
+          </div>
+          <div class="item-card">
+            <div class="item-icon" style="background: linear-gradient(135deg, #ff4d4d, #ff0000);">🔫</div>
+            <div class="item-desc">
+              <strong>레이저</strong>
+              <span class="item-duration">8초</span>
+              <p>패들에서 레이저가 발사됩니다. 스페이스바로 발사하며 블록 1개를 즉시 제거합니다.</p>
+            </div>
+          </div>
+          <div class="item-card">
+            <div class="item-icon" style="background: linear-gradient(135deg, #44ff88, #00aa44);">❤️</div>
+            <div class="item-desc">
+              <strong>생명 추가</strong>
+              <span class="item-duration">즉시</span>
+              <p>현재 라이프가 1 증가합니다. 최대 라이프는 5입니다.</p>
+            </div>
+          </div>
+          <div class="item-card">
+            <div class="item-icon" style="background: linear-gradient(135deg, #ffaa00, #ff5500);">⚡</div>
+            <div class="item-desc">
+              <strong>슬로우</strong>
+              <span class="item-duration">8초</span>
+              <p>모든 공의 속도가 60% 감속됩니다. 정확한 컨트롤이 가능해집니다.</p>
+            </div>
+          </div>
+          <div class="item-card">
+            <div class="item-icon" style="background: linear-gradient(135deg, #dd00ff, #8800cc);">💣</div>
+            <div class="item-desc">
+              <strong>폭탄</strong>
+              <span class="item-duration">즉시</span>
+              <p>현재 위치 주변 3×3 범위의 블록을 즉시 제거합니다. 내구도와 무관하게 파괴됩니다.</p>
+            </div>
+          </div>
+          <div class="item-card">
+            <div class="item-icon" style="background: linear-gradient(135deg, #ffff00, #aaaa00);">🛡️</div>
+            <div class="item-desc">
+              <strong>방어막</strong>
+              <span class="item-duration">1회</span>
+              <p>화면 하단에 방어막이 생성됩니다. 공이 한 번 떨어지는 것을 막아줍니다.</p>
+            </div>
+          </div>
+          <div class="item-card">
+            <div class="item-icon" style="background: linear-gradient(135deg, #ff6688, #ff0044);">✖️</div>
+            <div class="item-desc">
+              <strong>저주 (불리 아이템)</strong>
+              <span class="item-duration">6초</span>
+              <p>⚠️ 패들 너비가 절반으로 줄어듭니다. 받지 않도록 주의하세요!</p>
+            </div>
+          </div>
+          <div class="item-card item-card--danger">
+            <div class="item-icon" style="background: linear-gradient(135deg, #ff2244, #880011);">💔</div>
+            <div class="item-desc">
+              <strong>생명 감소 (불리 아이템)</strong>
+              <span class="item-duration">즉시</span>
+              <p>⚠️ 즉시 라이프가 1 감소합니다! 라운드가 높아질수록 등장 빈도가 증가합니다. 절대 받지 마세요!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: BLOCKS -->
+      <div class="tab-content" id="tab-content-blocks">
+        <h3 class="section-title">블록 종류</h3>
+        <p class="section-desc">블록마다 내구도가 다릅니다. 블록에 표시된 숫자가 0이 되면 파괴됩니다!</p>
+        <div class="block-grid">
+          <div class="block-card">
+            <div class="block-preview" style="background: linear-gradient(135deg, #88ccff, #4488ff); border: 2px solid #66aaff;">1</div>
+            <div class="block-desc">
+              <strong>일반 블록 (내구도 1)</strong>
+              <p>공 한 번으로 파괴됩니다. 가장 기본적인 블록입니다.</p>
+            </div>
+          </div>
+          <div class="block-card">
+            <div class="block-preview" style="background: linear-gradient(135deg, #88ff88, #44cc44); border: 2px solid #44aa44;">2~3</div>
+            <div class="block-desc">
+              <strong>강화 블록 (내구도 2~3)</strong>
+              <p>여러 번 맞춰야 파괴됩니다. 숫자가 줄어들면서 색상이 변합니다.</p>
+            </div>
+          </div>
+          <div class="block-card">
+            <div class="block-preview" style="background: linear-gradient(135deg, #ffdd44, #ffaa00); border: 2px solid #cc8800;">4~6</div>
+            <div class="block-desc">
+              <strong>단단한 블록 (내구도 4~6)</strong>
+              <p>후반 라운드에 등장하는 강력한 블록입니다. 파괴 시 고득점!</p>
+            </div>
+          </div>
+          <div class="block-card">
+            <div class="block-preview" style="background: linear-gradient(135deg, #ff4444, #cc0000); border: 2px solid #aa0000;">7+</div>
+            <div class="block-desc">
+              <strong>보스 블록 (내구도 7+)</strong>
+              <p>매우 단단한 블록입니다. 황금공을 사용하거나 폭탄으로 제거하세요!</p>
+            </div>
+          </div>
+          <div class="block-card">
+            <div class="block-preview" style="background: linear-gradient(135deg, #aa44ff, #6600cc); border: 2px solid #5500aa; font-size:18px;">👻</div>
+            <div class="block-desc">
+              <strong>유령 블록</strong>
+              <p>일정 시간마다 나타났다 사라집니다. 사라진 동안에는 공이 통과합니다.</p>
+            </div>
+          </div>
+          <div class="block-card">
+            <div class="block-preview" style="background: linear-gradient(135deg, #ffaaff, #ff44aa); border: 2px solid #dd0088; font-size:18px;">🎁</div>
+            <div class="block-desc">
+              <strong>아이템 블록</strong>
+              <p>파괴 시 반드시 아이템을 드랍합니다. 항상 우선적으로 노려보세요!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: RULES -->
+      <div class="tab-content" id="tab-content-rules">
+        <h3 class="section-title">게임 규칙</h3>
+        <div class="rules-list">
+          <div class="rule-item">
+            <div class="rule-icon">🎳</div>
+            <div class="rule-text">
+              <strong>라운드별 공 갯수</strong>
+              <p>라운드 번호 = 발사되는 공의 갯수. 라운드 1은 공 1개, 라운드 5는 공 5개가 동시에 발사됩니다!</p>
+            </div>
+          </div>
+          <div class="rule-item">
+            <div class="rule-icon">📈</div>
+            <div class="rule-text">
+              <strong>블록 증가</strong>
+              <p>라운드가 올라갈수록 블록의 수와 내구도가 증가합니다. 더 전략적인 플레이가 필요합니다.</p>
+            </div>
+          </div>
+          <div class="rule-item">
+            <div class="rule-icon">⭐</div>
+            <div class="rule-text">
+              <strong>점수 시스템 (x2 적용)</strong>
+              <p>블록 파괴 시 내구도 × 라운드 × 2점을 획득합니다. 연속 파괴 콤보로 추가 보너스를 획득하세요!</p>
+            </div>
+          </div>
+          <div class="rule-item">
+            <div class="rule-icon">❤️</div>
+            <div class="rule-text">
+              <strong>목숨</strong>
+              <p>공이 화면 밖으로 나가면 목숨이 1 감소합니다. 목숨이 0이 되면 게임 오버!</p>
+            </div>
+          </div>
+          <div class="rule-item">
+            <div class="rule-icon">🏆</div>
+            <div class="rule-text">
+              <strong>라운드 클리어</strong>
+              <p>모든 블록을 파괴하면 다음 라운드로 진행됩니다. 클리어 보너스 점수가 추가됩니다!</p>
+            </div>
+          </div>
+          <div class="rule-item">
+            <div class="rule-icon">🖱️</div>
+            <div class="rule-text">
+              <strong>조작 방법</strong>
+              <p>마우스 이동 또는 ← → 방향키로 패들을 조작합니다. 클릭 또는 스페이스바로 공을 발사합니다.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-start" id="btn-start-game">🚀 게임 시작!</button>
+        <button class="btn-action secondary hidden" id="btn-back-to-game">← 게임으로 돌아가기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── PAUSE OVERLAY ─── -->
+  <div id="pause-overlay" class="overlay">
+    <div class="pause-modal">
+      <h2>⏸ 일시정지</h2>
+      <div class="pause-btns">
+        <button class="btn-action" id="btn-resume">▶ 계속하기</button>
+        <button class="btn-action secondary" id="btn-restart-pause">↺ 다시 시작</button>
+        <button class="btn-action secondary" id="btn-guide">📖 가이드 보기</button>
+        <button class="btn-action secondary btn-home" id="btn-home-pause">🏠 처음으로</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── GAME OVER OVERLAY ─── -->
+  <div id="gameover-overlay" class="overlay">
+    <div class="gameover-modal">
+      <div class="gameover-icon">💀</div>
+      <h2>게임 오버</h2>
+      <div class="final-stats">
+        <div class="stat-item">
+          <span class="stat-label">최종 점수</span>
+          <span class="stat-value" id="final-score">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">도달 라운드</span>
+          <span class="stat-value" id="final-round">1</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">최대 콤보</span>
+          <span class="stat-value" id="final-combo">0</span>
+        </div>
+      </div>
+      <div class="gameover-btns">
+        <button class="btn-start" id="btn-play-again">🔄 다시 플레이</button>
+        <button class="btn-action secondary btn-home" id="btn-home-gameover">🏠 처음으로</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── ROUND CLEAR OVERLAY ─── -->
+  <div id="roundclear-overlay" class="overlay">
+    <div class="roundclear-modal">
+      <div class="clear-icon">🎉</div>
+      <h2 id="round-clear-title">라운드 1 클리어!</h2>
+      <div class="clear-bonus">
+        <span>클리어 보너스: </span><span id="clear-bonus-pts" class="bonus-pts">+500</span>
+      </div>
+      <div class="roundclear-btns">
+        <button class="btn-start" id="btn-next-round">다음 라운드 →</button>
+        <button class="btn-action secondary" id="btn-guide-clear">📖 아이템 설명 보기</button>
+        <button class="btn-action secondary btn-home" id="btn-home-clear">🏠 처음으로</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── MAIN GAME UI ─── -->
+  <div id="game-wrapper">
+    <header class="game-header">
+      <div class="hud-left">
+        <div class="hud-item">
+          <span class="hud-label">점수</span>
+          <span class="hud-val" id="score-display">0</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">콤보</span>
+          <span class="hud-val combo-val" id="combo-display">x1</span>
+        </div>
+      </div>
+      <div class="hud-center">
+        <div class="round-badge" id="round-badge">
+          <span class="round-label">ROUND</span>
+          <span class="round-num" id="round-display">1</span>
+        </div>
+      </div>
+      <div class="hud-right">
+        <div class="hud-item">
+          <span class="hud-label">라이프</span>
+          <span class="hud-val" id="lives-display">❤️❤️❤️</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">공 갯수</span>
+          <span class="hud-val" id="balls-display">1</span>
+        </div>
+        <button class="btn-pause" id="btn-pause" title="일시정지 (P)">⏸</button>
+        <button class="btn-pause btn-home-header" id="btn-home-header" title="처음으로 (홈)">🏠</button>
+      </div>
+    </header>
+
+    <!-- Active effects bar -->
+    <div id="effects-bar"></div>
+
+    <div class="canvas-container">
+      <canvas id="game-canvas"></canvas>
+      <div id="launch-hint" class="launch-hint">클릭 또는 스페이스바로 공 발사!</div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
